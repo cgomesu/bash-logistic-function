@@ -7,51 +7,79 @@
 # Repo: https://github.com/cgomesu/bash-logistic-function
 #########################################################
 
+# on error, call this function with a msg as arg for debugging
+err () {
+        if [[ $DEBUG = 'true' && ! -z "$1" ]]; then echo '[logistic] There was an error: '"$1"; fi
+        exit 1
+}
+
 ############################################################
 # The logistic function, f(x), has the following parameters:
 # x: value (real number) of a random variable X
 # m = x0: midpoint of X
-# L: max value of the function
+# L: max value of f(x)
 # k: the growth rate
-# s: number of decimals in f(x)
+# s: number of decimals in f(x), rounded down
 # 
 # https://en.wikipedia.org/wiki/Logistic_function
 ############################################################
-logistic_func () {
-        # local x=$1; local m=$2; local L=$3; local k=$4; local s=0
-        local EQUATION="output=$L/(1+e(-$k*($x-$m)))"; local OUTPUT=$(echo "$EQUATION;scale=$s;output/1" | bc -lq)
-        echo $OUTPUT
+logistic () {
+        local EQUATION="output=$L/(1+e(-$k*($x-$m)))"
+        local OUTPUT=$(echo "$EQUATION;scale=$s;output/1" | bc -lq 2>/dev/null)
+        if [[ ! $? -eq 0 ]]; then
+                err 'Unable to evaluate the equation.'
+        fi
+        echo $OUTPUT;return 0
 }
 
 usage () {
     printf "\nUsage:\n    $0 [OPTIONS]\n\nOptions:\n"
     echo '    -x  int,flt  Value (real) of a random variable X'
     echo '    -h           Show this help message.'
+    echo '    -d           Enable debug messages. Default: false.'
     printf "\nAuthor: cgomesu\nRepo: https://github.com/cgomesu/bash-logistic-function\n"
+}
+
+defaults () {
+        if [[ -z $DEBUG ]]; then DEBUG='false'; fi
+        if [[ -z $x || -z $m || -z $L || -z $k ]]; then err 'Missing mandatory parameters.'; fi
+        if [[ -z $s ]]; then s=2; fi
 }
 
 #####
 # Run
-if [[ -z $(command -v bc) ]]; then echo 'GNU basic calculator (bc) is not installed or cannot be found in this users PATH.';exit 1;fi
-
-while getopts 'x:m:L:k:s:h' OPT; do
+#####
+# TODO: add other options with x as template
+while getopts 'dx:m:L:k:s:h' OPT; do
     case ${OPT} in
+        d)
+            DEBUG='true'
+            ;;
         x)
             x="$OPTARG"
             # TODO: validate optarg with a regex
             if [[ ! "$x" =~ REGEX ]]; then
-                echo 'Err msg.'
-                exit 1
+                err 'Invalid value for -x'
             fi
             ;;
         h)
-            usage
-            exit 0
+            usage; exit 0
             ;;
         \?)
-            printf "\n!! INVALID OPTION !!\n"
-            usage
-            exit 1
+            printf "\n!! INVALID OPTION !!\n"; usage; exit 1
             ;;
     esac
 done
+
+if [[ -z $(command -v bc 2>/dev/null) ]]; then 
+        if [[ ! $? -eq 0 ]]; then
+                err 'Unable to check the GNU basic calculator (bc).'
+        else
+                err 'The GNU basic calculator (bc) is not installed or cannot be found in this users PATH.' 
+        fi
+fi
+
+defaults
+# logistic
+
+exit 0
