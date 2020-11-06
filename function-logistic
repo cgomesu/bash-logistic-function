@@ -1,0 +1,57 @@
+#!/bin/bash
+
+#########################################################
+# A customizable logistic function in GNU bash and bc
+#########################################################
+# Author: cgomesu
+# Repo: https://github.com/cgomesu/bash-logistic-function
+#########################################################
+
+############################################################
+# The logistic function, f(x), has the following parameters:
+# x: value (real number) of a random variable X
+# m = x0: midpoint of X
+# L: max value of the function
+# k: the growth rate
+# s: number of decimals in f(x)
+# 
+# https://en.wikipedia.org/wiki/Logistic_function
+############################################################
+logistic_func () {
+        # local x=$1; local m=$2; local L=$3; local k=$4; local s=0
+        local EQUATION="output=$L/(1+e(-$k*($x-$m)))"; local OUTPUT=$(echo "$EQUATION;scale=$s;output/1" | bc -lq)
+        echo $OUTPUT
+}
+
+usage () {
+    printf "\nUsage:\n    $0 [OPTIONS]\n\nOptions:\n"
+    echo '    -x  int,flt  Value (real) of a random variable X'
+    echo '    -h           Show this help message.'
+    printf "\nAuthor: cgomesu\nRepo: https://github.com/cgomesu/bash-logistic-function\n"
+}
+
+#####
+# Run
+if [[ -z $(command -v bc) ]]; then echo 'GNU basic calculator (bc) is not installed or cannot be found in this users PATH.';exit 1;fi
+
+while getopts 'x:m:L:k:s:h' OPT; do
+    case ${OPT} in
+        x)
+            x="$OPTARG"
+            # TODO: validate optarg with a regex
+            if [[ ! "$x" =~ REGEX ]]; then
+                echo 'Err msg.'
+                exit 1
+            fi
+            ;;
+        h)
+            usage
+            exit 0
+            ;;
+        \?)
+            printf "\n!! INVALID OPTION !!\n"
+            usage
+            exit 1
+            ;;
+    esac
+done
