@@ -1,15 +1,16 @@
 #!/bin/bash
 
 #########################################################
-# A customizable logistic function in GNU bash and bc
+# A logistic function in GNU bash and bc
 #########################################################
 # Author: cgomesu
 # Repo: https://github.com/cgomesu/bash-logistic-function
 #########################################################
 
+
 # on error, call this function with a msg as arg for debugging
 err () {
-  if [[ $DEBUG = 'true' && ! -z "$1" ]]; then 
+  if [[ $DEBUG = 'true' && -n "$1" ]]; then 
     echo '[logistic] There was an error: '"$1"
   fi;exit 1
 }
@@ -32,14 +33,16 @@ err () {
 # MORE INFO: https://en.wikipedia.org/wiki/logistic_function
 ############################################################
 logistic () {
-  local EQUATION="output=$L/(1+e(-$k*($x-$m)))"
-  local OUTPUT=$(echo "$EQUATION;scale=$s;output/1" | bc -lq 2>/dev/null)
-  if [[ ! $? -eq 0 ]]; then err 'Unable to eval the equation.'; fi
-  echo $OUTPUT;return 0
+  local EQUATION; local OUTPUT
+  EQUATION="output=$L/(1+e(-$k*($x-$m)))"
+  if ! OUTPUT=$(echo "$EQUATION;scale=$s;output/1" | bc -lq 2>/dev/null); then 
+     err 'Unable to eval the equation.'
+  fi
+  echo "$OUTPUT"; return 0
 }
 
 usage () {
-  printf "\nUsage:\n  $0 [OPTIONS]\n\nOptions:\n"
+  printf "\nUsage:\n  %s [OPTIONS]\n\nOptions:\n" "$0"
   echo '  -x  int/flt  Value (real) of a random variable X'
   echo '  -h           Show this help message.'
   echo '  -d           Enable debug messages. Default: false.'
@@ -50,6 +53,16 @@ defaults () {
   if [[ -z $DEBUG ]]; then DEBUG='false'; fi
   if [[ -z $x || -z $m || -z $L || -z $k ]]; then err 'Missing mandatory parameters.'; fi
   if [[ -z $s ]]; then s=2; fi
+}
+
+# tests if an argument is a real number with proper format
+# TODO: if bad format/style, fix it for the user
+validate_isreal () {
+  if [[ -n $1 ]]; then
+    return 1
+  # elif [[ condition ]]; then
+  #   #statements
+  fi
 }
 
 #####
@@ -64,8 +77,8 @@ while getopts 'dx:m:L:k:s:h' OPT; do
     x)
       x="$OPTARG"
       # TODO: validate optarg with a regex
-      if [[ ! "$x" =~ REGEX ]]; then
-        err 'Invalid value for -x'
+      if ! validate_isreal "$x"; then
+        err 'Invalid option for -x.'
       fi
       ;;
     h)
@@ -77,12 +90,10 @@ while getopts 'dx:m:L:k:s:h' OPT; do
   esac
 done
 
-if [[ -z $(command -v bc 2>/dev/null) ]]; then 
-  if [[ ! $? -eq 0 ]]; then
-    err 'Unable to check the GNU basic calculator (bc).'
-  else
-    err 'The GNU basic calculator (bc) is not installed or cannot be found in this users PATH.' 
-  fi
+if ! command 2>/dev/null; then
+  err 'Running command returns an error.'
+elif [[ -z $(command -v bc 2>/dev/null) ]]; then
+  err 'The GNU basic calculator (bc) is not installed or cannot be found in this users PATH.' 
 fi
 
 defaults
