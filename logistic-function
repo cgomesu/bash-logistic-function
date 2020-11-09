@@ -55,27 +55,27 @@ usage () {
   echo '    exponential:   e(VALUE)'
   echo '    for more, see: https://www.gnu.org/software/bc/manual/html_mono/bc.html'
   printf "\n  Options:\n"
-  echo '    -h  show this help message.'
-  echo '    -d  enable debug messages. default: false.'
-  echo '    -s  number of decimals to evaluate the equation. default: 20.'
-  echo '    -S  number of decimals to output. default: 2.'
+  echo '    -d       enable debug messages.'
+  echo '    -h       show this help message.'
+  echo '    -s  int  number of decimals to evaluate the equation. default: 20.'
+  echo '    -S  int  number of decimals to output. default: 2.'
   printf "\n  Example:\n"
-  echo '    funciton-logistic -x .5 -m 0 -L 1 -k 1 -s 10 -S 4'
+  echo '    logistic-function -x .5 -m 0 -L 1 -k 1 -s 10 -S 4'
   printf "\nAuthor: cgomesu\nRepo: https://github.com/cgomesu/bash-logistic-function\n"
 }
 
 defaults () {
   if [[ -z $DEBUG ]]; then DEBUG='false'; fi
   if [[ -z $x || -z $m || -z $L || -z $k ]]; then err 'Missing mandatory parameters.'; fi
-  if [[ -z $s ]]; then s=2; fi
+  if [[ -z $s ]]; then s=20; fi
+  if [[ -z $S ]]; then s=2; fi
 }
 
 # tests if an argument is a real number with proper format
-# TODO: if bad format/style, fix it for the user
 validate_isreal () {
-  if [[ -n "$1" ]]; then
+  if [[ -n "$1" || ! "$1" =~ ^(|\+|\-)([0-9]+|[0-9]+(\.|\/)[0-9]+|\.[0-9]+)$ ]]; then
     return 1
-  elif [[ "$1" =~ ^(|\+|\-)([0-9]+|[0-9]+(\.|\/)[0-9]+|\.[0-9]+)$ ]]; then
+  else
     return 0
   fi
 }
