@@ -57,8 +57,10 @@ usage () {
   printf "\n  Options:\n"
   echo '    -h  show this help message.'
   echo '    -d  enable debug messages. default: false.'
+  echo '    -s  number of decimals to evaluate the equation. default: 20.'
+  echo '    -S  number of decimals to output. default: 2.'
   printf "\n  Example:\n"
-  echo '    funciton-logistic -x .5 -m 0 -L 1 -k 1 -s 10 -S 2'
+  echo '    funciton-logistic -x .5 -m 0 -L 1 -k 1 -s 10 -S 4'
   printf "\nAuthor: cgomesu\nRepo: https://github.com/cgomesu/bash-logistic-function\n"
 }
 
