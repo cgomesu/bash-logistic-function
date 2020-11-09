@@ -12,17 +12,16 @@
 err () {
   if [[ $DEBUG = 'true' && -n "$1" ]]; then 
     echo '[logistic] There was an error: '"$1"
-  fi;exit 1
+  fi; exit 1
 }
 
 ############################################################
 # The logistic function, f(x), has the following parameters:
 # 
-# x: value (real number) of a variable X
+# x: value of a variable X
 # m = x0: midpoint of X
 # L: max value of f(x)
-# k: the growth rate
-# s: number of decimals in f(x), rounded down
+# k: growth rate
 # 
 # And is given by the equation:
 #
@@ -35,17 +34,31 @@ err () {
 logistic () {
   local EQUATION; local OUTPUT
   EQUATION="output=$L/(1+e(-$k*($x-$m)))"
-  if ! OUTPUT=$(echo "$EQUATION;scale=$s;output/1" | bc -lq 2>/dev/null); then 
-     err 'Unable to eval the equation.'
+  if ! OUTPUT=$(echo "scale=$s;$EQUATION;scale=$S;output/1" | bc -lq 2>/dev/null); then 
+    err 'Unable to eval the equation.'
   fi
   echo "$OUTPUT"; return 0
 }
 
 usage () {
-  printf "\nUsage:\n  %s [OPTIONS]\n\nOptions:\n" "$0"
-  echo '  -x  int/flt  Value (real) of a random variable X'
-  echo '  -h           Show this help message.'
-  echo '  -d           Enable debug messages. Default: false.'
+  printf "\nUsage:\n  %s -x VALUE -m VALUE -L VALUE -k VALUE [OPTIONS]\n" "$0"
+  printf "\n  Logistic function:\n"
+  echo '    -x  real*  value of a variable X.'
+  echo '    -m  real*  m = x0: Midpoint of X.'
+  echo '    -L  real*  max value of f(x).'
+  echo '    -k  real*  growth rate.'
+  printf "\n  * acceptable real numbers:\n"
+  echo '    integers:      ..., -1, 0, 1, ...'
+  echo '    fractions:     ..., -1/2, -.25, 0, .25, 1/2, ...'
+  echo '    square roots:  sqrt(VALUE)'
+  echo '    natural logs:  l(VALUE)'
+  echo '    exponential:   e(VALUE)'
+  echo '    for more, see: https://www.gnu.org/software/bc/manual/html_mono/bc.html'
+  printf "\n  Options:\n"
+  echo '    -h  show this help message.'
+  echo '    -d  enable debug messages. default: false.'
+  printf "\n  Example:\n"
+  echo '    funciton-logistic -x .5 -m 0 -L 1 -k 1 -s 10 -S 2'
   printf "\nAuthor: cgomesu\nRepo: https://github.com/cgomesu/bash-logistic-function\n"
 }
 
@@ -58,10 +71,10 @@ defaults () {
 # tests if an argument is a real number with proper format
 # TODO: if bad format/style, fix it for the user
 validate_isreal () {
-  if [[ -n $1 ]]; then
+  if [[ -n "$1" ]]; then
     return 1
-  # elif [[ condition ]]; then
-  #   #statements
+  elif [[ "$1" =~ ^(|\+|\-)([0-9]+|[0-9]+(\.|\/)[0-9]+|\.[0-9]+)$ ]]; then
+    return 0
   fi
 }
 
