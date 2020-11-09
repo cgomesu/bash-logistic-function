@@ -25,7 +25,7 @@ err () {
 # 
 # And is given by the equation:
 #
-# f(x) = L / {1 + e^[-k*(x-m)]},
+# f(x) = L / {1 + e^[-k * (x - m)]},
 #
 # in which 'e' is Euler's constant.
 #
@@ -33,7 +33,7 @@ err () {
 ############################################################
 logistic () {
   local EQUATION; local OUTPUT
-  EQUATION="output=$L/(1+e(-$k*($x-$m)))"
+  EQUATION="output=($L)/(1+e(-($k)*(($x)-($m))))"
   if ! OUTPUT=$(echo "scale=$s;$EQUATION;scale=$S;output/1" | bc -lq 2>/dev/null); then 
     err 'Unable to eval the equation.'
   fi
@@ -50,10 +50,10 @@ usage () {
   printf "\n  * acceptable real numbers:\n"
   echo '    integers:      ..., -1, 0, 1, ...'
   echo '    fractions:     ..., -1/2, -.25, 0, .25, 1/2, ...'
+  echo '    exponentials:  ..., -(2^2), 0, 2^2, ...'
   echo '    square roots:  sqrt(VALUE)'
   echo '    natural logs:  l(VALUE)'
-  echo '    exponential:   e(VALUE)'
-  echo '    for more, see: https://www.gnu.org/software/bc/manual/html_mono/bc.html'
+  echo '    natural exp:   e(VALUE)'
   printf "\n  Options:\n"
   echo '    -d       enable debug messages.'
   echo '    -h       show this help message.'
@@ -66,14 +66,13 @@ usage () {
 
 defaults () {
   if [[ -z $DEBUG ]]; then DEBUG='false'; fi
-  if [[ -z $x || -z $m || -z $L || -z $k ]]; then err 'Missing mandatory parameters.'; fi
+  if [[ -z "$x" || -z "$m" || -z "$L" || -z "$k" ]]; then err 'Missing mandatory parameters.'; fi
   if [[ -z $s ]]; then s=20; fi
-  if [[ -z $S ]]; then s=2; fi
+  if [[ -z $S ]]; then S=2; fi
 }
 
-# tests if an argument is a real number with proper format
 validate_isreal () {
-  if [[ -n "$1" || ! "$1" =~ ^(|\+|\-)([0-9]+|[0-9]+(\.|\/)[0-9]+|\.[0-9]+)$ ]]; then
+  if [[ -z "$1" || ! "$1" =~ ^(|\+|\-)(|sqrt|s|c|a|l|e|j)(|\()([0-9]+|[0-9]+(\.|\/|\^)[0-9]+|\.[0-9]+)(|\))$ ]]; then
     return 1
   else
     return 0
@@ -83,21 +82,37 @@ validate_isreal () {
 #####
 # Run
 #####
-# TODO: add other options with x as template
-while getopts 'dx:m:L:k:s:h' OPT; do
+while getopts 'hdx:m:L:k:s:S:' OPT; do
   case ${OPT} in
+    h)
+      usage; exit 0
+      ;;
     d)
       DEBUG='true'
       ;;
     x)
       x="$OPTARG"
-      # TODO: validate optarg with a regex
-      if ! validate_isreal "$x"; then
-        err 'Invalid option for -x.'
-      fi
+      if ! validate_isreal "$x"; then err 'Invalid value for -x.'; fi
       ;;
-    h)
-      usage; exit 0
+    m)
+      m="$OPTARG"
+      if ! validate_isreal "$m"; then err 'Invalid value for -m.'; fi
+      ;;
+    L)
+      L="$OPTARG"
+      if ! validate_isreal "$L"; then err 'Invalid value for -L.'; fi
+      ;;
+    k)
+      k="$OPTARG"
+      if ! validate_isreal "$k"; then err 'Invalid value for -k.'; fi
+      ;;
+    s)
+      s="$OPTARG"
+      if ! validate_isreal "$s"; then err 'Invalid value for -s.'; fi
+      ;;
+    S)
+      S="$OPTARG"
+      if ! validate_isreal "$S"; then err 'Invalid value for -S.'; fi
       ;;
     \?)
       printf "\n!! INVALID OPTION !!\n"; usage; exit 1
