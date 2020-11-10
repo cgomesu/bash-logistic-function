@@ -1,14 +1,21 @@
 #!/bin/bash
 
 #########################################################
-# A logistic function in GNU bash and bc
+# The logistic function in GNU bash and bc
 #########################################################
 # Author: cgomesu
 # Repo: https://github.com/cgomesu/bash-logistic-function
 #########################################################
 
 
-# on error, call this function with a msg as arg for debugging
+defaults () {
+  if [[ -z $DEBUG ]]; then DEBUG='false'; fi
+  if [[ -z "$x" || -z "$m" || -z "$L" || -z "$k" ]]; then err 'Missing mandatory parameters.'; fi
+  if [[ -z $s ]]; then s=20; fi
+  if [[ -z $S ]]; then S=2; fi
+  if [[ $S -gt $s ]]; then err 'Option -S must be lower or equal to -s.'; fi
+}
+
 err () {
   if [[ $DEBUG = 'true' && -n "$1" ]]; then 
     echo '[logistic] There was an error: '"$1"
@@ -23,7 +30,7 @@ err () {
 # L: max value of f(x)
 # k: growth rate
 # 
-# And is given by the equation:
+# And is given by the equation
 #
 # f(x) = L / {1 + e^[-k * (x - m)]},
 #
@@ -43,45 +50,42 @@ logistic () {
 usage () {
   printf "\nUsage:\n  %s -x VALUE -m VALUE -L VALUE -k VALUE [OPTIONS]\n" "$0"
   printf "\n  Logistic function:\n"
-  echo '    -x  real*  value of a variable X.'
-  echo '    -m  real*  m = x0: Midpoint of X.'
-  echo '    -L  real*  max value of f(x).'
-  echo '    -k  real*  growth rate.'
-  printf "\n  * acceptable real numbers:\n"
-  echo '    integers:      ..., -1, 0, 1, ...'
-  echo '    fractions:     ..., -1/2, -.25, 0, .25, 1/2, ...'
-  echo '    exponentials:  ..., -(2^2), 0, 2^2, ...'
-  echo '    square roots:  sqrt(VALUE)'
-  echo '    natural logs:  l(VALUE)'
-  echo '    natural exp:   e(VALUE)'
+  echo '    -x  real*  value of a variable X'
+  echo '    -m  real*  m = x0: Midpoint of X'
+  echo '    -L  real*  max value of f(x)'
+  echo '    -k  real*  growth rate'
+  printf "\n  * acceptable inputs:\n"
+  echo '    integers:       ..., -1, 0, 1, ...'
+  echo '    fractions:      ..., -1/2, -.25, 0, .25, 1/2, ...'
+  echo '    positive exps:  ..., "-(2^2)", 0, 2^2, ...'
+  echo '    natural exps:   "e(VALUE)"'
+  echo '    natural logs:   "l(VALUE)"'
+  echo '    square roots:   "sqrt(VALUE)"'
+  echo '    sines:          "s(VALUE)"'
+  echo '    cosines:        "c(VALUE)"'
+  echo '    arctangents:    "a(VALUE)"'
   printf "\n  Options:\n"
   echo '    -d       enable debug messages.'
   echo '    -h       show this help message.'
-  echo '    -s  int  number of decimals to evaluate the equation. default: 20.'
-  echo '    -S  int  number of decimals to output. default: 2.'
+  echo '    -s  int  # of decimals to compute f(x). default: 20.'
+  echo '    -S  int  # of decimals in the output. default: 2.'
   printf "\n  Example:\n"
   echo '    logistic-function -x .5 -m 0 -L 1 -k 1 -s 10 -S 4'
   printf "\nAuthor: cgomesu\nRepo: https://github.com/cgomesu/bash-logistic-function\n"
 }
 
-defaults () {
-  if [[ -z $DEBUG ]]; then DEBUG='false'; fi
-  if [[ -z "$x" || -z "$m" || -z "$L" || -z "$k" ]]; then err 'Missing mandatory parameters.'; fi
-  if [[ -z $s ]]; then s=20; fi
-  if [[ -z $S ]]; then S=2; fi
-}
-
 validate_isreal () {
-  if [[ -z "$1" || ! "$1" =~ ^(|\+|\-)(|sqrt|s|c|a|l|e|j)(|\()([0-9]+|[0-9]+(\.|\/|\^)[0-9]+|\.[0-9]+)(|\))$ ]]; then
+  local REGEX_VALUE; local REGEX_MATLIB
+  REGEX_VALUE="\-{0,1}([0-9]+|[0-9]+(\.|\/\-{0,1}|\^)[0-9]+|\.[0-9]+)"
+  REGEX_MATLIB="\-{0,1}(e|l|sqrt|s|c|a)\($REGEX_VALUE\)"
+  if [[ -z "$1" || ! "$1" =~ ^($REGEX_VALUE|$REGEX_MATLIB)$ ]]; then
     return 1
   else
     return 0
   fi
 }
 
-#####
-# Run
-#####
+
 while getopts 'hdx:m:L:k:s:S:' OPT; do
   case ${OPT} in
     h)
@@ -127,6 +131,6 @@ elif [[ -z $(command -v bc 2>/dev/null) ]]; then
 fi
 
 defaults
-# logistic
+logistic
 
 exit 0
