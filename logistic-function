@@ -74,7 +74,7 @@ usage () {
   printf "\nAuthor: cgomesu\nRepo: https://github.com/cgomesu/bash-logistic-function\n"
 }
 
-validate_isreal () {
+validate_parameter () {
   local REGEX_VALUE; local REGEX_MATLIB
   REGEX_VALUE="\-{0,1}([0-9]+|[0-9]+(\.|\/\-{0,1}|\^)[0-9]+|\.[0-9]+)"
   REGEX_MATLIB="\-{0,1}(e|l|sqrt|s|c|a)\($REGEX_VALUE\)"
@@ -96,27 +96,27 @@ while getopts 'hdx:m:L:k:s:S:' OPT; do
       ;;
     x)
       x="$OPTARG"
-      if ! validate_isreal "$x"; then err 'Invalid value for -x.'; fi
+      if ! validate_parameter "$x"; then err 'Invalid value for -x.'; fi
       ;;
     m)
       m="$OPTARG"
-      if ! validate_isreal "$m"; then err 'Invalid value for -m.'; fi
+      if ! validate_parameter "$m"; then err 'Invalid value for -m.'; fi
       ;;
     L)
       L="$OPTARG"
-      if ! validate_isreal "$L"; then err 'Invalid value for -L.'; fi
+      if ! validate_parameter "$L"; then err 'Invalid value for -L.'; fi
       ;;
     k)
       k="$OPTARG"
-      if ! validate_isreal "$k"; then err 'Invalid value for -k.'; fi
+      if ! validate_parameter "$k"; then err 'Invalid value for -k.'; fi
       ;;
     s)
       s="$OPTARG"
-      if ! validate_isreal "$s"; then err 'Invalid value for -s.'; fi
+      if ! validate_parameter "$s"; then err 'Invalid value for -s.'; fi
       ;;
     S)
       S="$OPTARG"
-      if ! validate_isreal "$S"; then err 'Invalid value for -S.'; fi
+      if ! validate_parameter "$S"; then err 'Invalid value for -S.'; fi
       ;;
     \?)
       printf "\n!! INVALID OPTION !!\n"; usage; exit 1
