@@ -1,10 +1,13 @@
 # bash-logistic-function
-An implementation of the [**logistic function**](#) written in [**GNU bash**](#) and [**GNU basic calculator** (bc)](#). It requires four parameters (`-x`, `-m`, `-L`, `-k`) to output the value of *f(x)*. If there is an error, the function exits with `status 1`; otherwise, it exists with `status 0`. (Errors won't generate any message unless the function is called in debug mode with the argument `-d`.)
+An implementation of the [**logistic function**](https://en.wikipedia.org/wiki/logistic_function) written in [**GNU bash**](https://www.gnu.org/software/bash/) and [**GNU basic calculator** (bc)](https://www.gnu.org/software/bc/). It requires four parameters (`-x`, `-m`, `-L`, `-k`) to output the value of *f(x)*. If there is an error, the function exits with `status 1`; otherwise, it exists with `status 0`. (Errors won't generate any message unless the function is called in debug mode with the argument `-d`.)
 
 This code was meant to be used programatically to output values of a given logistic model across values of a random variable *X*.  See [**Examples**](#examples).
 
 # Usage
 ```
+./logistic-function -h
+
+Usage:
   ./logistic-function -x VALUE -m VALUE -L VALUE -k VALUE [OPTIONS]
 
   Logistic function:
@@ -38,7 +41,9 @@ Repo: https://github.com/cgomesu/bash-logistic-function
 ```
 
 # Demo
-TBD
+<p align="center">
+	<img width="600" src="img/demo-logistic.gif">
+</p>
 
 # Examples
 For the examples below, it was assumed that `logistic-function` is in the current user's `$PATH` (e.g., `/usr/local/bin`).  In addition, the logistic model was always the **standard logistic sigmoid function** with parameters *m* = 0, *L* = 1, and *k* = 1:
