@@ -42,7 +42,7 @@ Repo: https://github.com/cgomesu/bash-logistic-function
 
 # Demo
 <p align="center">
-	<img width="600" src="img/demo-logistic.gif">
+	<img src="img/demo-logistic.gif">
 </p>
 
 # Examples
