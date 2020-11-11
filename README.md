@@ -47,7 +47,7 @@ For the examples below, it was assumed that `logistic-function` is in the curren
 </p>
 
 ## If test
-Test if a value of X (provided as the first argument) returns a valid status 
+Test if a value of *X* (provided as the first argument) returns a valid status 
 ```
 #!/bin/bash
 if logistic-function -x "$1" -m 0 -L 1 -k 1 &>/dev/null; then
